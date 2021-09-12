@@ -1,5 +1,10 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { EditorState, convertToRaw } from "draft-js";
+import {
+  EditorState,
+  convertToRaw,
+  KeyBindingUtil,
+  getDefaultKeyBinding,
+} from "draft-js";
 import Editor from "@draft-js-plugins/editor";
 import {
   ItalicButton,
@@ -62,8 +67,24 @@ export default function CustomMentionEditor() {
   const content = editorState.getCurrentContent().getPlainText();
   console.log(content);
 
-  function extractLinks(text) {
-    console.log(text);
+  const { hasCommandModifier } = KeyBindingUtil;
+
+  function myKeyBindingFn(e) {
+    // pressed enter
+    // if you want to add ctrl + enter use && hasCommandModifier(e)
+    if (e.keyCode === 13) {
+      // if (e.keyCode === 13 && hasCommandModifier(e)) {
+      return "myeditor-save";
+    }
+    return getDefaultKeyBinding(e);
+  }
+
+  function handleKeyCommand(command) {
+    if (command === "myeditor-save") {
+      alert("pressed S");
+      return "handled";
+    }
+    return "not-handled";
   }
 
   const { MentionSuggestions, plugins, Toolbar, linkifyPlugin } =
@@ -113,6 +134,8 @@ export default function CustomMentionEditor() {
           onChange={onChange}
           plugins={plugins}
           ref={ref}
+          handleKeyCommand={handleKeyCommand}
+          keyBindingFn={myKeyBindingFn}
         />
 
         <MentionSuggestions
@@ -150,7 +173,7 @@ export default function CustomMentionEditor() {
                 display: "inline-block",
               }}
               src={
-                "https://preview.redd.it/fpxptjtwwgm71.png?width=640&crop=smart&auto=webp&s=37a119b9b10275804c38c0f8929388230f6564e9"
+                "https://images.indianexpress.com/2020/08/descendants-of-the-sun.jpg"
               }
             />
             <img
@@ -162,7 +185,7 @@ export default function CustomMentionEditor() {
                 display: "inline-block",
               }}
               src={
-                "https://preview.redd.it/sljar4ndo2m71.png?width=640&crop=smart&auto=webp&s=364d26d1ff6aa59c487786a93ad09747c3a1fbee"
+                "https://upload.wikimedia.org/wikipedia/en/1/1e/Sweet_Home_TV_series.jpg"
               }
             />
           </div>
